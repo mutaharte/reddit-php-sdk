@@ -1,4 +1,7 @@
 <?php
+
+namespace tkijewski;
+
 class redditConfig{
     //standard, oauth token fetch, and api request endpoints
     static $ENDPOINT_STANDARD = 'http://www.reddit.com';
