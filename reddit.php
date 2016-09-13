@@ -1,4 +1,7 @@
 <?php
+
+namespace tkijewski\reddit;
+
 require_once("config.php");
 
 /**
