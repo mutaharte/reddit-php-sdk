@@ -1,6 +1,6 @@
 <?php
 
-namespace tkijewski\reddit;
+namespace tkijewski;
 
 require_once("config.php");
 
