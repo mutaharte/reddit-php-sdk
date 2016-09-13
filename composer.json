@@ -1,0 +1,7 @@
+{
+    "name": "tkijewski/reddit-php-sdk",
+    "description": Reddit php wrapper by jcieblanc",
+    "require": {
+        "php": "^5.3.3"
+    }
+}
