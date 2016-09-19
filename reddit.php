@@ -1,9 +1,5 @@
 <?php
 
-namespace tkijewski;
-
-require_once("config.php");
-
 /**
 * Reddit PHP SDK
 *
@@ -17,58 +13,89 @@ class reddit{
     private $token_type;
     private $auth_mode = 'basic';
     
+    //access token configuration from https://ssl.reddit.com/prefs/apps
+    private $client_id = null;
+    private $client_secret = null;
+
+    //standard, oauth token fetch, and api request endpoints
+    private $endpoint_standard = 'http://www.reddit.com';
+    private $endpoint_oauth = 'https://oauth.reddit.com';
+    private $endpoint_oauth_authorize = 'https://www.reddit.com/api/v1/authorize';
+    private $endpoint_oauth_token = 'https://www.reddit.com/api/v1/access_token';
+    
+    //access token request scopes
+    //full list at http://www.reddit.com/dev/api/oauth
+    private $scopes = 'save,modposts,identity,edit,flair,history,modconfig,modflair,modlog,modposts,modwiki,mysubreddits,privatemessages,read,report,submit,subscribe,vote,wikiedit,wikiread';
+    
     /**
     * Class Constructor
     *
     * Construct the class and simultaneously log a user in.
     * @link https://github.com/reddit/reddit/wiki/API%3A-login
     */
-    public function __construct(){
-        if(isset($_COOKIE['reddit_token'])){
-            $token_info = explode(":", $_COOKIE['reddit_token']); 
-            $this->token_type = $token_info[0];
-            $this->access_token = $token_info[1];
-        } else { 
-            if (isset($_GET['code'])){
-                //capture code from auth
-                $code = $_GET["code"];
+    public function __construct($client_id,$client_secret){
                 
-                //construct POST object for access token fetch request
-                $postvals = sprintf("code=%s&redirect_uri=%s&grant_type=authorization_code",
-                                    $code,
-                                    redditConfig::$ENDPOINT_OAUTH_REDIRECT);
-                
-                //get JSON access token object (with refresh_token parameter)
-                $token = self::runCurl(redditConfig::$ENDPOINT_OAUTH_TOKEN, $postvals, null, true);
-                
-                //store token and type
-                if (isset($token->access_token)){
-                    $this->access_token = $token->access_token;
-                    $this->token_type = $token->token_type;
-                    
-                    //set token cookie for later use
-                    $cookie_time = 60 * 59 + time();  //seconds * minutes = 59 minutes (token expires in 1hr) 
-                    setcookie('reddit_token', "{$this->token_type}:{$this->access_token}", $cookie_time); 
-                }
-            } else {
-                $state = rand();
-                $urlAuth = sprintf("%s?response_type=code&client_id=%s&redirect_uri=%s&scope=%s&state=%s",
-                                   redditConfig::$ENDPOINT_OAUTH_AUTHORIZE,
-                                   redditConfig::$CLIENT_ID,
-                                   redditConfig::$ENDPOINT_OAUTH_REDIRECT,
-                                   redditConfig::$SCOPES,
-                                   $state);
-                    
-                //forward user to PayPal auth page
-                header("Location: $urlAuth");
-            }
-        }
-        
+        $this->client_id = $client_id;
+        $this->client_secret = $client_secret;
+
         //set API endpoint
-        $this->apiHost = redditConfig::$ENDPOINT_OAUTH;
+        $this->apiHost = $this->endpoint_oauth;
         
         //set auth mode for requests
         $this->auth_mode = 'oauth';
+    }
+
+     /**
+     * Returns the login url
+     *
+     * @link https://github.com/reddit/reddit/wiki/OAuth2 (scopes)
+     * @access public
+     * @param  array    $scopes
+     * @param  string   $redirect_uri
+     * @return string
+     */
+    public function getLoginUrl($redirect_uri, $scopes = "identity edit flair")
+    {
+        $state = rand();
+        $urlAuth = sprintf("%s?response_type=code&client_id=%s&redirect_uri=%s&scope=%s&state=%s",
+                           $this->endpoint_oauth_authorize,
+                           $this->client_id,
+                           $redirect_uri,
+                           $scopes,
+                           $state);
+        return $urlAuth;
+    }
+
+    /**
+     * Change the code for an access_token
+     *
+     * @param  string   $code
+     * @return object   $token
+     */
+    public function getOAuthToken($code)
+    {
+        //construct POST object for access token fetch request
+        $postvals = sprintf("code=%s&grant_type=authorization_code",
+                            $code);
+        
+        //get JSON access token object (with refresh_token parameter)
+        $token = self::runCurl($this->endpoint_oauth_token, $postvals, null, true);
+
+        return $token;
+    }
+
+    /**
+     * Set the access_token for further requests
+     *
+     * @access public
+     * @param  object   $token
+     * @return void
+     */
+    public function setOAuthToken($token)
+    {
+        //store token and type
+        $this->access_token = $token->access_token;
+        $this->token_type = $token->token_type;
     }
     
     /**
@@ -693,7 +720,7 @@ class reddit{
         
         if ($auth){
             $options[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
-            $options[CURLOPT_USERPWD] = redditConfig::$CLIENT_ID . ":" . redditConfig::$CLIENT_SECRET;
+            $options[CURLOPT_USERPWD] = $this->$CLIENT_ID . ":" . $this->$CLIENT_SECRET;
             $options[CURLOPT_SSLVERSION] = 4;
             $options[CURLOPT_SSL_VERIFYPEER] = false;
             $options[CURLOPT_SSL_VERIFYHOST] = 2;
