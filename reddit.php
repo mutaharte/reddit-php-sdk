@@ -88,17 +88,36 @@ class reddit{
     }
 
     /**
+     * Get a refreshed bearer token. To be used with duration=permanent
+     *
+     * @param  string   $code
+     * @return object   $token
+     */
+    public function getRefreshOAuthToken($refresh_token)
+    {
+        //construct POST object for access token fetch request
+        $postvals = sprintf("refresh_token=%s&grant_type=refresh_token",
+                            $refresh_token);
+        
+        //get JSON access token object (with refresh_token parameter)
+        $token = self::runCurl($this->endpoint_oauth_token, $postvals, null, true);
+
+        return $token;
+    }
+
+    /**
      * Set the access_token for further requests
      *
      * @access public
-     * @param  object   $token
+     * @param  string   $token
+     * @param  string   $token_type
      * @return void
      */
-    public function setOAuthToken($token)
+    public function setOAuthToken($token,$token_type='bearer')
     {
         //store token and type
-        $this->access_token = $token->access_token;
-        $this->token_type = $token->token_type;
+        $this->access_token = $token;
+        $this->token_type = $token_type;
     }
     
     /**
