@@ -1,15 +1,16 @@
 {
     "name": "tkijewski/reddit-php-sdk",
-    "description": "Composer ready version of jcleblanc/reddit-php-sdk",    
+    "description": "Fork of jcleblanc/reddit-php-sdk with improvements",    
     "keywords": ["reddit"],
     "homepage": "https://github.com/tkijewski/reddit-php-sdk",
+    "license": "MIT",
     "authors": [
         {            
             "name": "Jonathon LeBlanc",
             "homepage": "https://github.com/jcleblanc/reddit-php-sdk"
         },
         {
-            "name": "Tim K",
+            "name": "Tim Kijewski",
             "homepage": "https://github.com/tkijewski/reddit-php-sdk"
         }   
     ],
