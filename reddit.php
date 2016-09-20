@@ -25,7 +25,7 @@ class reddit{
     
     //access token request scopes
     //full list at http://www.reddit.com/dev/api/oauth
-    private $scopes = 'save,modposts,identity,edit,flair,history,modconfig,modflair,modlog,modposts,modwiki,mysubreddits,privatemessages,read,report,submit,subscribe,vote,wikiedit,wikiread';
+    private $scopes = 'save modposts identity edit flair history modconfig modflair modlog modposts modwiki mysubreddits privatemessages read report submit subscribe vote wikiedit wikiread';
     
     /**
     * Class Constructor
@@ -54,10 +54,13 @@ class reddit{
      * @param  string   $redirect_uri
      * @return string
      */
-    public function getLoginUrl($redirect_uri, $scopes = "identity edit flair")
+    public function getLoginUrl($redirect_uri, $scopes = NULL)
     {
+        if (!$scopes)
+            $scopes = $this->scopes;
+
         $state = rand();
-        $urlAuth = sprintf("%s?response_type=code&client_id=%s&redirect_uri=%s&scope=%s&state=%s",
+        $urlAuth = sprintf("%s?response_type=code&duration=permanent&client_id=%s&redirect_uri=%s&scope=%s&state=%s",
                            $this->endpoint_oauth_authorize,
                            $this->client_id,
                            $redirect_uri,
@@ -72,11 +75,11 @@ class reddit{
      * @param  string   $code
      * @return object   $token
      */
-    public function getOAuthToken($code)
+    public function getOAuthToken($code, $redirect_uri)
     {
         //construct POST object for access token fetch request
-        $postvals = sprintf("code=%s&grant_type=authorization_code",
-                            $code);
+        $postvals = sprintf("code=%s&grant_type=authorization_code&redirect_uri=%s",
+                            $code,$redirect_uri);
         
         //get JSON access token object (with refresh_token parameter)
         $token = self::runCurl($this->endpoint_oauth_token, $postvals, null, true);
@@ -710,20 +713,19 @@ class reddit{
             $options[CURLOPT_POSTFIELDS] = $postVals;
             $options[CURLOPT_CUSTOMREQUEST] = "POST";
         }
-        
-        if ($this->auth_mode == 'oauth'){
+
+        if ($auth){
+            $options[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
+            $options[CURLOPT_USERPWD] = $this->client_id . ":" . $this->client_secret;
+            $options[CURLOPT_SSLVERSION] = 4;
+            $options[CURLOPT_SSL_VERIFYPEER] = false;
+            $options[CURLOPT_SSL_VERIFYHOST] = 2;
+        } 
+        else if ($this->auth_mode == 'oauth'){
             $headers = array("Authorization: {$this->token_type} {$this->access_token}");
             $options[CURLOPT_HEADER] = false;
             $options[CURLINFO_HEADER_OUT] = false;
             $options[CURLOPT_HTTPHEADER] = $headers;
-        }
-        
-        if ($auth){
-            $options[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
-            $options[CURLOPT_USERPWD] = $this->$CLIENT_ID . ":" . $this->$CLIENT_SECRET;
-            $options[CURLOPT_SSLVERSION] = 4;
-            $options[CURLOPT_SSL_VERIFYPEER] = false;
-            $options[CURLOPT_SSL_VERIFYHOST] = 2;
         }
         
         curl_setopt_array($ch, $options);
