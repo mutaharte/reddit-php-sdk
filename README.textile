@@ -4,7 +4,7 @@ The Reddit SDK is a wrapper around the Reddit OAuth 2 API: http://www.reddit.com
 
 h1. Installation  
 
-The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
+The preferred way to install this extension is through http://getcomposer.org/download/.
 
 <pre>
 composer require tkijewski/reddit-php-sdk:*
