@@ -10,21 +10,24 @@ The preferred way to install this extension is through [composer](http://getcomp
 composer require tkijewski/reddit-php-sdk:*
 </pre>
 
-h2. Initiating Your Login Session & Simple Examples
+h2. Initiating Your Login Session & Simple Example
 
 Before making requests to any of the methods of the Reddit SDK, you first need to instantiate a new OAuth 2 session by using your client id and client secret.  You may obtain these keys by creating a new app at https://ssl.reddit.com/prefs/apps
 
+h3. Before redirect
+
 <pre>
 $reddit = new \reddit($client_id,$client_secret);
-$callbackUrl = "http://www.mysite.com/reddit-auth
+$callbackUrl = "http://www.mysite.com/reddit-auth";
 $url = $reddit->getLoginUrl($callbackUrl);
 header("Location: $url");
 </pre>
 
 h3. After redirect
+
 <pre>
 $reddit = new \reddit($client_id,$client_secret);
-$callbackUrl = "http://www.mysite.com/reddit-auth
+$callbackUrl = "http://www.mysite.com/reddit-auth"; //THIS URL MUST BE THE SAME AS ABOVE
 $token = $reddit->getOAuthToken($_REQUEST['code'],$oauth_callbackUrl);
 $reddit->setOAuthToken($token->access_token);
 $info = $reddit->getUser();
@@ -70,7 +73,6 @@ Generates a token from a code. Note the callbackUrl is still required
 $token = $reddit->getOAuthToken($_REQUEST['code'],$callbackUrl);
 </pre>
 </notextile>
-
 
 *Setting a token*
 Sets the token for the session
