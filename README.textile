@@ -28,6 +28,7 @@ h3. After redirect
 <pre>
 $reddit = new \reddit($client_id,$client_secret);
 $callbackUrl = "http://www.mysite.com/reddit-auth"; //THIS URL MUST BE THE SAME AS ABOVE
+//AS OF NOW THIS REQUEST USES duration=permanent WHICH INCLUDES A REFRESH TOKEN!
 $token = $reddit->getOAuthToken($_REQUEST['code'],$oauth_callbackUrl);
 $reddit->setOAuthToken($token->access_token);
 $info = $reddit->getUser();
