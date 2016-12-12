@@ -22,6 +22,9 @@ class reddit{
     private $endpoint_oauth = 'https://oauth.reddit.com';
     private $endpoint_oauth_authorize = 'https://www.reddit.com/api/v1/authorize';
     private $endpoint_oauth_token = 'https://www.reddit.com/api/v1/access_token';
+
+    //this must be set in order to make requests past the oauth stage
+    public $user_agent = NULL;
     
     //access token request scopes
     //full list at http://www.reddit.com/dev/api/oauth
@@ -723,8 +726,10 @@ class reddit{
             CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_TIMEOUT => 10
         );
-        
-        if (!empty($_SERVER['HTTP_USER_AGENT'])){
+
+        if ($this->user_agent)
+            $options[CURLOPT_USERAGENT] = $this->user_agent;
+        else if (!empty($_SERVER['HTTP_USER_AGENT'])){
             $options[CURLOPT_USERAGENT] = $_SERVER['HTTP_USER_AGENT'];
         }
         
