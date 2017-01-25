@@ -481,11 +481,7 @@ class reddit{
                               $limit,
                               $qAfter,
                               $qBefore);
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 70e2b5f8bf70c5c0e3921a08fab733bb4529a9c6
         return self::runCurl($urlGetAll);
     }
     
@@ -725,11 +721,7 @@ class reddit{
     */
     private function runCurl($url, $postVals = null, $headers = null, $auth = false){
         $ch = curl_init($url);
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 70e2b5f8bf70c5c0e3921a08fab733bb4529a9c6
         $options = array(
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CONNECTTIMEOUT => 5,
@@ -764,11 +756,7 @@ class reddit{
         curl_setopt_array($ch, $options);
         $apiResponse = curl_exec($ch);
         $response = json_decode($apiResponse);
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 70e2b5f8bf70c5c0e3921a08fab733bb4529a9c6
         //check if non-valid JSON is returned
         if ($error = json_last_error()){
             $response = $apiResponse;    
